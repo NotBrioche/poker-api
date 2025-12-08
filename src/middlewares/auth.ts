@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import error from "../utils/send_error";
+import User from "../models/user";
 
 export const isLogged = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -20,12 +21,18 @@ export const isLogged = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  jwt.verify(token, secret, (err, decoded: any) => {
+  jwt.verify(token, secret, async (err: any, decoded: any) => {
     if (err) {
       res.status(403).json(error(403, "Invalid or expired token"));
     }
 
-    req.uid = decoded._id;
+    const user = await User.findById(decoded._id, { password: 0, __v: 0 });
+
+    if (user == null) {
+      res.sendStatus(404);
+    }
+
+    req.user = user;
     next();
   });
 };

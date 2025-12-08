@@ -8,6 +8,7 @@ router.post(
   // #swagger.security = [{"bearerAuth": []}]
 
   "/create",
+
   auth.isLogged,
   controller.create
 );

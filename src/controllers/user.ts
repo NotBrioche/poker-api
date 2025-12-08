@@ -1,33 +1,29 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Types } from "mongoose";
 import User from "../models/user";
 import error from "../utils/send_error";
 
-export const get = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!Types.ObjectId.isValid(req.params.id)) {
-      res.sendStatus(400);
-    }
-
-    const user = await User.findById(req.params.id, { password: 0 });
-
-    if (user != null) {
-      res.status(200).json(user);
-    }
-
-    res.sendStatus(404);
-  } catch (e) {
-    res.sendStatus(500);
-  }
+export const self = async (req: Request, res: Response) => {
+  res.status(200).json(req.user);
 };
 
-export const signup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const get = async (req: Request, res: Response) => {
+  if (!Types.ObjectId.isValid(req.params.id)) {
+    res.sendStatus(400);
+  }
+
+  const user = await User.findById(req.params.id, { password: 0 });
+
+  if (user != null) {
+    res.status(200).json(user);
+  }
+
+  res.sendStatus(404);
+};
+
+export const signup = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (
@@ -62,11 +58,7 @@ export const signup = async (
   res.status(201).json(result);
 };
 
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username: username });
