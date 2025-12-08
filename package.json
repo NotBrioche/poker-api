@@ -1,0 +1,41 @@
+{
+  "name": "poker-api",
+  "version": "1.0.0",
+  "description": "API to play poker",
+  "license": "ISC",
+  "author": "NotBrioche",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx jest",
+    "start": "npx ts-node src/index.ts",
+    "dev": "npx nodemon src/index.ts",
+    "swagger": "npx ts-node src/doc/swagger.ts"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.6.2",
+    "swagger-autogen": "^2.23.7",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
