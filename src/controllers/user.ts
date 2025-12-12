@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Types } from "mongoose";
 import User from "../models/user";
-import error from "../utils/send_error";
+import send_error from "../utils/send_error";
 
 export const self = async (req: Request, res: Response) => {
   res.status(200).json(req.user);
@@ -14,7 +14,11 @@ export const get = async (req: Request, res: Response) => {
     res.sendStatus(400);
   }
 
-  const user = await User.findById(req.params.id, { password: 0 });
+  const user = await User.findById(req.params.id, {
+    password: 0,
+    chips: 0,
+    verified: 0,
+  });
 
   if (user != null) {
     res.status(200).json(user);
@@ -23,39 +27,54 @@ export const get = async (req: Request, res: Response) => {
   res.sendStatus(404);
 };
 
+export const changeDisplayName = async (req: Request, res: Response) => {
+  const { displayName } = req.body;
+
+  if (!displayName) {
+    send_error(res, 400, "Please provide a display name");
+  }
+
+  if (displayName.length > 30 || displayName.length < 1) {
+    send_error(res, 400, "Display name must be between 1 and 30 characters");
+  }
+
+  if (displayName.replace("\\", "") != displayName) {
+    send_error(res, 400, 'Display name can\'t contain "\\"');
+  }
+
+  await User.updateOne({ _id: req.user._id }, { displayName: displayName });
+  res.sendStatus(200);
+};
+
 export const signup = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (
     username.toLowerCase() != username ||
-    username.replace("\\", "") != username ||
-    username.replace("$", "") != username
+    username.replace("\\", "") != username
   ) {
-    res
-      .status(400)
-      .json(error(400, 'Usernames must be in lowercase without "\\" or "$"'));
+    send_error(res, 400, 'Usernames must be in lowercase without "\\"');
   }
 
   if (password.length < 8) {
-    res.status(400).json(error(400, "Password must be at least 8 characters"));
+    send_error(res, 400, "Password must be at least 8 characters");
   }
 
   if ((await User.findOne({ username: username })) != null) {
-    res.status(400).json(error(400, "Username already taken"));
+    send_error(res, 400, "Username already taken");
   }
 
   const hashed = await bcrypt.hash(password, 12);
 
-  const result = await User.insertOne({
+  await User.insertOne({
     username: username.toLowerCase(),
     displayName: username.toLowerCase(),
     password: hashed,
-    chips: 10000,
   }).catch((e) => {
     res.sendStatus(500);
   });
 
-  res.status(201).json(result);
+  res.sendStatus(201);
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -71,7 +90,7 @@ export const login = async (req: Request, res: Response) => {
   const isPasswordCorrect = await bcrypt.compare(password, user!.password);
 
   if (!isPasswordCorrect) {
-    res.status(403).json(error(403, "Wrong username or password"));
+    send_error(res, 403, "Wrong username or password");
   }
 
   const payload = { _id: user._id, username: user.username };

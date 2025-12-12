@@ -21,6 +21,16 @@ router.get(
   auth.isLogged,
   controller.get
 );
+
+router.patch(
+  // #swagger.security = [{"bearerAuth": []}]
+
+  "/display",
+
+  auth.isLogged,
+  controller.changeDisplayName
+);
+
 router.post("/signup", controller.signup);
 router.post("/login", controller.login);
 

@@ -1,4 +1,6 @@
-export default function (code: Number, message: String) {
+import { Response } from "express";
+
+export default function (res: Response, code: number, message: String) {
   let error = "Handle it with status code";
 
   switch (code) {
@@ -10,5 +12,5 @@ export default function (code: Number, message: String) {
       error = "Forbidden";
   }
 
-  return { error: error, message: message };
+  res.status(code).json({ error: error, message: message });
 }

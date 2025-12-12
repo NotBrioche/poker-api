@@ -11,6 +11,6 @@
     "outDir": "./dist",
     "typeRoots": ["./types"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/doc/swagger.ts"],
   "exclude": ["node_modules"]
 }

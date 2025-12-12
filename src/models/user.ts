@@ -16,6 +16,12 @@ const User = new Schema({
   chips: {
     type: Number,
     required: true,
+    default: 10000,
+  },
+  verified: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
 });
 

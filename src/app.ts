@@ -13,7 +13,17 @@ app.use(express.json());
 
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-app.use("/user", user);
-app.use("/table", table);
+app.use(
+  // #swagger.tags = ['Users']
+
+  "/user",
+  user
+);
+app.use(
+  // #swagger.tags = ['Tables']
+
+  "/table",
+  table
+);
 
 export default app;
