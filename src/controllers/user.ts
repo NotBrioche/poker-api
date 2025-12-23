@@ -47,7 +47,13 @@ export const changeDisplayName = async (req: Request, res: Response) => {
 };
 
 export const signup = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
+
+  const re = /^\S+@\S+\.\S+$/;
+
+  if (!re.test(email)) {
+    send_error(res, 400, "Please enter a valid email");
+  }
 
   if (
     username.toLowerCase() != username ||
@@ -60,6 +66,10 @@ export const signup = async (req: Request, res: Response) => {
     send_error(res, 400, "Password must be at least 8 characters");
   }
 
+  if ((await User.findOne({ email: email })) != null) {
+    send_error(res, 400, "Email already used");
+  }
+
   if ((await User.findOne({ username: username })) != null) {
     send_error(res, 400, "Username already taken");
   }
@@ -68,6 +78,7 @@ export const signup = async (req: Request, res: Response) => {
 
   await User.insertOne({
     username: username.toLowerCase(),
+    email: email,
     displayName: username.toLowerCase(),
     password: hashed,
   }).catch((e) => {

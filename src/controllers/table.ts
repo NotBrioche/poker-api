@@ -1,21 +1,61 @@
 import { Request, Response } from "express";
 import Table from "../models/table";
 import send_error from "../utils/send_error";
-import SSE from "express-sse";
+import { listNames, tableNames } from "../utils/event_names";
 
-const sse = new SSE([]);
+let listClients: any[] = [];
+let tableClients: any[] = [];
 
-export const stream = async (req: Request, res: Response) => {
-  const tables = await Table.find(
-    {},
-    { pot: 0, tableCards: 0, bigBlindIndex: 0 }
-  );
+export const listStream = async (req: Request, res: Response) => {
+  const headers = {
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+    "Cache-Control": "no-cache",
+  };
 
-  sse.updateInit(tables);
+  res.writeHead(200, headers);
 
-  res.header("");
+  const tables = await Table.find();
 
-  return sse.init;
+  res.write(`data : ${JSON.stringify(tables)}\n\n`);
+
+  const clientId = Date.now();
+
+  const newClient = {
+    id: clientId,
+    res,
+  };
+
+  listClients.push(newClient);
+
+  req.on("close", () => {
+    listClients = listClients.filter((client) => client.id !== clientId);
+  });
+};
+
+export const tableStream = async (req: Request, res: Response) => {
+  const headers = {
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+    "Cache-Control": "no-cache",
+  };
+
+  res.writeHead(200, headers);
+
+  res.write(`data : ${JSON.stringify(req.table)}\n\n`);
+
+  const clientId = Date.now();
+
+  const newClient = {
+    id: clientId,
+    res,
+  };
+
+  tableClients.push(newClient);
+
+  req.on("close", () => {
+    tableClients = tableClients.filter((client) => client.id !== clientId);
+  });
 };
 
 export const list = async (req: Request, res: Response) => {
@@ -84,12 +124,26 @@ export const join = async (req: Request, res: Response) => {
     $addToSet: { users: req.user._id },
   });
 
+  sendToClients(tableNames.JOIN, req.user.username, tableClients);
+
+  res.sendStatus(200);
+};
+
+export const quit = async (req: Request, res: Response) => {
+  await Table.findByIdAndUpdate(req.table._id, {
+    $pull: { users: req.user._id },
+  });
+
+  sendToClients(tableNames.QUIT, req.user.username, tableClients);
+
   res.sendStatus(200);
 };
 
 export const open = async (req: Request, res: Response) => {
   await Table.findByIdAndUpdate(req.table._id, { status: "waiting" });
   req.table.save();
+
+  sendToClients(listNames.NEW, req.table, listClients);
 
   res.sendStatus(200);
 };
@@ -103,5 +157,20 @@ export const start = async (req: Request, res: Response) => {
   await Table.findByIdAndUpdate(req.table._id, { status: "dealing" });
   req.table.save();
 
+  sendToClients(tableNames.START, null, tableClients);
+
   res.sendStatus(200);
 };
+
+export const remove = async (req: Request, res: Response) => {
+  sendToClients(listNames.REMOVE, req.table._id, listClients);
+
+  await Table.findByIdAndDelete(req.table._id);
+
+  res.sendStatus(200);
+};
+
+function sendToClients(eventName: string, data: any, list: any[]) {
+  list.forEach((c) => c.res.write(`event : ${eventName}\n`));
+  list.forEach((c) => c.res.write(`data : ${JSON.stringify(data)}\n\n`));
+}

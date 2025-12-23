@@ -21,9 +21,6 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -109,6 +106,9 @@
                   "username": {
                     "example": "any"
                   },
+                  "email": {
+                    "example": "any"
+                  },
                   "password": {
                     "example": "any"
                   }
@@ -146,6 +146,9 @@
                 "type": "object",
                 "properties": {
                   "username": {
+                    "example": "any"
+                  },
+                  "email": {
                     "example": "any"
                   },
                   "password": {
@@ -194,6 +197,24 @@
         }
       }
     },
+    "/tablelist/stream": {
+      "get": {
+        "tags": [
+          "Tables"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/table/stream": {
       "get": {
         "tags": [
@@ -201,11 +222,8 @@
         ],
         "description": "",
         "responses": {
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         },
         "security": [
@@ -225,11 +243,24 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Tables"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         },
         "security": [
@@ -248,9 +279,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -326,8 +354,26 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/table/quit": {
+      "post": {
+        "tags": [
+          "Tables"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           },
           "500": {
             "description": "Internal Server Error"

@@ -11,10 +11,20 @@ const isHost = [table.isInTable, table.isHost];
 router.get(
   // #swagger.security = [{"bearerAuth": []}]
 
+  "/list/stream",
+
+  // auth.isLogged,
+  controller.listStream
+);
+
+router.get(
+  // #swagger.security = [{"bearerAuth": []}]
+
   "/stream",
 
-  auth.isLogged,
-  controller.stream
+  // auth.isLogged,
+  table.isInTable,
+  controller.tableStream
 );
 
 router.get(
@@ -57,6 +67,16 @@ router.post(
 router.post(
   // #swagger.security = [{"bearerAuth": []}]
 
+  "/quit",
+
+  auth.isLogged,
+  table.isInTable,
+  controller.quit
+);
+
+router.post(
+  // #swagger.security = [{"bearerAuth": []}]
+
   "/open",
 
   isVerified,
@@ -72,6 +92,16 @@ router.post(
   isVerified,
   isHost,
   controller.start
+);
+
+router.delete(
+  // #swagger.security = [{"bearerAuth": []}]
+
+  "/",
+
+  isVerified,
+  isHost,
+  controller.remove
 );
 
 export default router;
